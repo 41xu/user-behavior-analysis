@@ -1,0 +1,36 @@
+id,name,cname
+87,$AppClick,App 元素点击
+88,$AppEnd,App 退出
+89,$AppStart,App 启动
+86,$AppViewScreen,App 浏览页面
+91,$SignUp,关联 ID
+2,AppInstall,激活APP
+92,AppReceivedNotification,AppReceivedNotification
+14,AppStart,启动APP
+3,CRMOperation,CRM操作
+90,ViewProduct,ViewProduct
+9,clickBottomButton,点击底部链接
+6,clickExperienceDemo,点击立即体验Demo
+5,clickForgetCode,点击忘记密码
+26,clickRegister,点击注册
+17,clickRightButton,点击右侧按钮
+13,collectProgram,收藏项目
+1,commitPassword,提交新密码
+27,createprogram,完成项目创建
+21,demoGetCode,Demo-获取短信验证码
+7,demoLogin,Demo体验登入成功
+4,documentOperation,文档操作
+20,financeOperation,财务页面操作
+23,login,登录
+24,pageview,网页浏览页面
+19,passwordGetCode,找回密码-获取验证码
+15,programAddCustom,创建项目-添加客户
+12,programAddTeam,创建项目-添加团队成员
+11,programOperation,项目操作
+16,programSelectModel,创建项目-选择项目模板
+25,registerCreateCompany,注册-点击创建新企业
+8,registerGetCode,注册-获取验证码
+18,registerInputCode,注册-输入验证码
+22,registerSuccess,完成注册
+28,resetPassword,找回密码-重置密码
+10,taskOperation,任务操作
