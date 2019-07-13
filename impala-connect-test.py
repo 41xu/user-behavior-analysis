@@ -50,6 +50,30 @@ def funnel(event_ids, quary):  # event_ids->tuple; quary->[year,month] # 按月�
     return count0, count1, count2, count3
 
 
+def remain(from_time, to_time, event_init, event_remain):  # from_time: "2019-01-01", event_init: str event_id
+    from_time = "'" + from_time + " 00:00:00.000000000'"
+    to_time = "'" + to_time + " 00:00:00.000000000'"
+
+    create_string = "create view sample_remain as select event_id,user_id,day,time  from  event_export where event_id in " + \
+                   "(" + event_init + "," + event_remain + ")" + " and " + from_time + " <time and time< " + to_time
+    cur.execute("use rawdata")
+    cur.execute("drop view if exists rawdata.sample_remain")
+    cur.execute(create_string)
+
+    counts=[0 for _ in range(7)]
+    create_string="select count(distinct user_id),day from sample_remain group by day where event_id="+event_init
+    cur.execute(create_string)
+    total=cur.fetchall()
+    total=[list(x) for x in total]
+    for x in total:
+        x[1] = str(datetime.datetime.fromtimestamp(x[1] * 86400))[:10]
+
+    create_string="select count(distinct t1.user_id) from sample_remain group by day where event_id="+event_init+" and "+\
+        from_time+" < time"
+
+
+
+
 def event(from_time, to_time, event_id, feature,
           group):  # from_time: "2019-01-01", event_id: str, feature: str, group: str
     features = {
@@ -73,14 +97,23 @@ def event(from_time, to_time, event_id, feature,
     cur.execute('drop view if exists rawdata.sample_event')
     cur.execute(create_string)
 
-    features["0"] = "select count(time),day from sample_event group by day"
-    features["1"] = "select count(user_id),day from sample_event group by day"
-    features["2"] = "select count(distinct user_id),day from sample_event group by day "
-    features["3"] = "select count(time)/count(distinct user_id),day from sample_event group by day"
+    features["0"] = "select count(time),day from sample_event group by day order by day"
+    features["1"] = "select count(user_id),day from sample_event group by day order by day"
+    features["2"] = "select count(distinct user_id),day from sample_event group by day order by day"
+    features["3"] = "select count(time)/count(distinct user_id),day from sample_event group by day order by day"
     # features["4"]="select sum(p__event_duration)/count(p__event_duration),day from sample_event group by day"
 
-    groups["0"] = "select count(p_utm_source),p_utm_source,day from sample_event group by day,p_utm_source"
-    groups["1"] = "select count(p_is_first_time),p_is_first_time,day from sample_event group by day,p_is_first_time"
+    f={
+        "0":"count(time)",
+        "1":"count(user_id)",
+        "2":"count(distinct user_id)",
+        "3":"count(time)/count(distinct user_id)"
+    }
+
+    # groups["0"] = "select "+f[feature]+",p_utm_source,day from sample_event group by day,p_utm_source order by day"
+    # groups["1"] = "select "+f[feature]+",p_is_first_time,day from sample_event group by day,p_is_first_time order by day"
+    groups["0"] = "select "+f[feature]+",p__carrier,day from sample_event group by day,p__carrier order by day"
+    groups["1"] = "select "+f[feature]+",p__manufacturer,day from sample_event group by day,p__manufacturer order by day"
 
     cur.execute(features[feature])
     feature_result = cur.fetchall()
@@ -99,6 +132,8 @@ def event(from_time, to_time, event_id, feature,
     # and time<'2019-02-07 00:00:00.000000000' group by day,p_is_first_time;
 
     return feature_result, group_result
+
+
 
 
 # 这里想要处理那些feature_result中没有出现的日期，用0补上
@@ -139,8 +174,7 @@ def group_standard(from_time, to_time, group_result):  # from_time: unixtime
     return dic
 
 
-def remain(from_time, to_time, event_init, event_remain):
-    pass
+
 if __name__ == '__main__':
     conn = connect(host='139.217.87.136', port=21050)
     cur = conn.cursor()
@@ -148,9 +182,18 @@ if __name__ == '__main__':
     quary = ["2019", "02"]
     # count=funnel(event_ids, quary)
     # print(count)
-    from_time = "2019-02-01"
-    to_time = "2019-02-05"
+    from_time = "2019-01-01"
+    to_time = "2019-03-01"
     event_id = "28"
-    feature = "3"
+    feature = "0"
     group = "1"
-    # features,groups=event(from_time,to_time,event_id,feature,group)
+    features,groups=event(from_time,to_time,event_id,feature,group)
+    print(features)
+    print(groups)
+    event_init="26" # 注册
+    event_remain="27" # 完成项目创建
+    # remain(from_time,to_time,event_init,event_remain)
+
+
+# select * from(select count(time), day from event_export group by day) f left join (select count(time),p_is_first_time,day from event_export group by day,p_is_first_time) g on f.day=g.day;
+# feature0,group0
