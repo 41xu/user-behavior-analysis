@@ -176,7 +176,7 @@ def group_standard(from_time, to_time, group_result):  # from_time: unixtime
 
 
 if __name__ == '__main__':
-    conn = connect(host='139.217.87.136', port=21050)
+    conn = connect(host='xxx.xxx.xxx.xxx', port=21050)
     cur = conn.cursor()
     event_ids = (5, 19, 28, 1)
     quary = ["2019", "02"]
