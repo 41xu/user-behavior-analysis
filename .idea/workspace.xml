@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="b55e042e-958d-4472-af2e-705cca8be115" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/event/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/event/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/funnel/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/funnel/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/remain/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/remain/views.py" afterDir="false" />
-    </list>
+    <list default="true" id="b55e042e-958d-4472-af2e-705cca8be115" name="Default Changelist" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -362,12 +358,12 @@
       <option name="presentableId" value="Default" />
       <updated>1562920919088</updated>
       <workItem from="1562920920484" duration="18710000" />
-      <workItem from="1563007665959" duration="6062000" />
+      <workItem from="1563007665959" duration="6196000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="24772000" />
+    <option name="totallyTimeSpent" value="24906000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="250" y="23" width="1167" height="801" extended-state="0" />
