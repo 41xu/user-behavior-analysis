@@ -76,9 +76,4 @@ def funnel_generate(event_names,values):
     return funnel
 
 if __name__=="__main__":
-    # event_data = pd.read_csv('../sample_data/event_define.csv')
-    # event_map = {}
-    # for i in range(len(event_data)):
-    #     event_map[event_data.iloc[i,0]] = event_data.iloc[i,2]
-    # print(event_map)
-    print(os.path.dirname(os.getcwd())+'/sample_data/event_define.csv')
+   pass

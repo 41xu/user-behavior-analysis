@@ -29,35 +29,6 @@ def remain(request):
 
     return render_to_response('remain.html')
 
-def funnel_generate2():
-    attr = ["过程1", "过程2", "过3", "过程4"]
-    value = [80, 60, 40, 20]
-    funnel = Funnel("漏斗图")
-    funnel.add(
-        " ",
-        attr,
-        value,
-        is_label_show=True,
-        label_pos="inside",
-        label_text_color="#fff",
-    )
-    return funnel
-def funnel_generate(event_names,values):
-    # process -> list 用户选择的漏斗过程 ； values -> list impala返回的结果
-    # attr = ["过程1", "过程2", "过3", "过程4"]
-    attr = event_names
-    # value = [80, 60, 40, 20]
-    value = values
-    funnel = Funnel("漏斗图")
-    funnel.add(
-        " ",
-        attr,
-        value,
-        is_label_show=True,
-        label_pos="inside",
-        label_text_color="#fff",
-    )
-    return funnel
 
 if __name__=="__main__":
     pass
