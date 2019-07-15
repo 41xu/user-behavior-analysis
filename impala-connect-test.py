@@ -13,7 +13,7 @@ def random_sample(percent):  # 抽样总表
 
 def funnel(event_ids, quary):  # event_ids->tuple; quary->[year,month] # 按月份进行漏斗查询
     # quary处理
-    from_month = "'" + quary[0] + "-" + quary[1] + "-01 00:00:0.000000000'"
+    from_month = "'" + quary[0] + "-" + quary[1] + "-01 00:00:00.000000000'"
     if int(quary[1]) < 12:
         to_month = "'" + quary[0] + "-" + "{:0>2d}".format(int(quary[1]) + 1) + "-01 00:00:00.000000000'"
     else:
@@ -54,9 +54,9 @@ def remain(from_time, to_time, event_init, event_remain):  # from_time: "2019-01
     from_time += " 00:00:00"
     to_time += " 00:00:00"
     from_time = time.strptime(from_time, "%Y-%m-%d %H:%M:%S")
-    from_day = str(time.mktime(from_time)//86400)
+    from_day = str(int(time.mktime(from_time)//86400))
     to_time = time.strptime(to_time, "%Y-%m-%d %H:%M:%S")
-    to_day = str(time.mktime(to_time)//86400)
+    to_day = str(int(time.mktime(to_time)//86400))
 
 
     create_string = "create view sample_remain as select event_id,user_id,day,time  from  event_export_partition where event_id in " + \
@@ -109,9 +109,9 @@ def event(from_time, to_time, event_id, feature,
     from_time += " 00:00:00"
     to_time += " 00:00:00"
     from_time = time.strptime(from_time, "%Y-%m-%d %H:%M:%S")
-    from_day = str(time.mktime(from_time)//86400)
+    from_day = str(int(time.mktime(from_time)//86400))
     to_time = time.strptime(to_time, "%Y-%m-%d %H:%M:%S")
-    to_day = str(time.mktime(to_time)//86400)
+    to_day = str(int(time.mktime(to_time)//86400))
 
     create_string = "create view sample_event as select * from event_export_partition where event_id=" + event_id + " and " + \
                     from_day + " <day and day< " + to_day
@@ -195,7 +195,7 @@ def group_standard(from_time, to_time, group_result):  # from_time: unixtime
 
 
 if __name__ == '__main__':
-    conn = connect(host='xxx.xxx.xxx.xxx', port=21050)
+    conn = connect(host='139.217.87.136', port=21050)
     cur = conn.cursor()
     event_ids = (5, 19, 28, 1)
     quary = ["2019", "02"]
