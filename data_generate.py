@@ -64,6 +64,22 @@ def login_funnel(nums):
             ids[j + i * 20 + 175] = 8
     return ids
 
+def event_append():
+    data=pd.read_csv('test_data_funnel.csv')
+    print(data)
+    data['p__carrier']=group_event(50)
+    data.to_csv('test_data_event.csv')
+
+
+
+def group_event(nums):
+    groups=[]
+    for i in range(nums*4*5//2):
+        groups.append(0)
+        groups.append(1)
+    return groups
+
+
 
 if __name__ == '__main__':
     times, day = timecal_funnel("2019-06-01")
@@ -74,4 +90,7 @@ if __name__ == '__main__':
     data['day'] = day
     ids = login_funnel(50)
     data['event_id'] = ids
-    data.to_csv("test_data_funnel.csv")
+    data.to_csv("test_data_funnel.csv",index=False)
+
+    event_append()
+
