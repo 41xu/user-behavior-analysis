@@ -178,22 +178,26 @@ def group_standard(from_time, to_time, group_result):  # from_time: unixtime
 if __name__ == '__main__':
     conn = connect(host='139.217.87.136', port=21050)
     cur = conn.cursor()
-    event_ids = (5, 19, 28, 1)
-    quary = ["2019", "02"]
+    cur.execute('use rawdata')
+    cur.execute('select count(*) from event_export_partition')
+    print(cur.fetchall())
+    # event_ids = (5, 19, 28, 1)
+    # quary = ["2019", "02"]
     # count=funnel(event_ids, quary)
     # print(count)
-    from_time = "2019-01-01"
-    to_time = "2019-03-01"
-    event_id = "28"
-    feature = "0"
-    group = "1"
-    features,groups=event(from_time,to_time,event_id,feature,group)
-    print(features)
-    print(groups)
-    event_init="26" # 注册
-    event_remain="27" # 完成项目创建
+    # from_time = "2019-01-01"
+    # to_time = "2019-03-01"
+    # event_id = "28"
+    # feature = "0"
+    # group = "1"
+    # features,groups=event(from_time,to_time,event_id,feature,group)
+    # print(features)
+    # print(groups)
+    # event_init="26" # 注册
+    # event_remain="27" # 完成项目创建
     # remain(from_time,to_time,event_init,event_remain)
 
 
 # select * from(select count(time), day from event_export group by day) f left join (select count(time),p_is_first_time,day from event_export group by day,p_is_first_time) g on f.day=g.day;
 # feature0,group0
+
