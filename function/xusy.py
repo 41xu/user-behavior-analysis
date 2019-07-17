@@ -2,8 +2,11 @@ from impala.dbapi import connect
 import datetime
 import time
 
+#host='106.75.95.67'
 
-def random_sample(percent):  # 抽样总表
+def random_sample(host,percent):  # 抽样总表
+    conn = connect(host=host, port=21050)
+    cur = conn.cursor()
     create_string = "create table random_sample as select * from event_export where user_id%" + str(percent) + "=1"
     cur = conn.cursor()
     cur.execute('use rawdata')
@@ -11,7 +14,9 @@ def random_sample(percent):  # 抽样总表
     cur.execute(create_string)
 
 
-def funnel(event_ids, quary):  # event_ids->tuple; quary->[year,month] # 按月份进行漏斗查询
+def funnel(host,event_ids, quary):  # event_ids->tuple; quary->[year,month] # 按月份进行漏斗查询
+    conn = connect(host=host, port=21050)
+    cur = conn.cursor()
     # quary处理
     from_month = "'" + quary[0] + "-" + quary[1] + "-01 00:00:00.000000000'"
     if int(quary[1]) < 12:
@@ -50,7 +55,9 @@ def funnel(event_ids, quary):  # event_ids->tuple; quary->[year,month] # 按月�
     return count0, count1, count2, count3
 
 
-def remain(from_time, to_time, event_init, event_remain):  # from_time: "2019-01-01", event_init: str event_id
+def remain(host,from_time, to_time, event_init, event_remain):  # from_time: "2019-01-01", event_init: str event_id
+    conn = connect(host=host, port=21050)
+    cur = conn.cursor()
     from_time += " 00:00:00"
     to_time += " 00:00:00"
     from_time = time.strptime(from_time, "%Y-%m-%d %H:%M:%S")
@@ -99,8 +106,10 @@ def remain(from_time, to_time, event_init, event_remain):  # from_time: "2019-01
 
 
 
-def event(from_time, to_time, event_id, feature,
+def event(host,from_time, to_time, event_id, feature,
           group):  # from_time: "2019-01-01", event_id: str, feature: str, group: str
+    conn = connect(host=host, port=21050)
+    cur = conn.cursor()
     features = {
         "0": "",  # 总次数
         "1": "",  # 总人数
@@ -199,8 +208,6 @@ def group_standard(from_time, to_time, group_result):  # from_time: unixtime
 
 
 if __name__ == '__main__':
-    conn = connect(host='106.75.95.67', port=21050)
-    cur = conn.cursor()
     print("Connect success!")
     event_ids = (5, 19, 28, 1)
     quary = ["2019", "02"]
