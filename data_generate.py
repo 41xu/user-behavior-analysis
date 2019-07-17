@@ -42,7 +42,7 @@ def user_funnel(num, start):
 # 2->3 87.5%完成，剩余
 
 
-def login_funnel(nums, start):
+def login_funnel(nums):
     dic = {
         1: 26,
         2: 8,
@@ -93,7 +93,7 @@ def generate(start, batch, last_time):
     data['user_id'] = users
     data['time'] = times
     data['day'] = day
-    ids = login_funnel(batch // 20, start)
+    ids = login_funnel(batch // 20)
     data['event_id'] = ids
     bucket = event_bucket(batch // 20)
     data['event_bucket'] = bucket
