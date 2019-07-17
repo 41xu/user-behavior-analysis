@@ -70,42 +70,33 @@ def remain(from_time, to_time, event_init, event_remain):  # from_time: "2019-01
     cur.execute(create_string)
     total = cur.fetchall()
     total = [list(x) for x in total]
-    for x in total:
-        x[1] = str(datetime.datetime.fromtimestamp(x[1] * 86400))[:10]
-    # print(total)
-
+    # for x in total:
+    #     x[1] = str(datetime.datetime.fromtimestamp(x[1] * 86400))[:10]
+    print(total)
+    # total: 人数，日期
     create_string = "create view event_init as select user_id,day from sample_remain where event_id=" + event_init
     cur.execute("drop view if exists rawdata.event_init")
     cur.execute(create_string)
     create_string = "create view event_remain as select user_id,day from sample_remain where event_id=" + event_remain
     cur.execute("drop view if exists rawdata.event_remain")
     cur.execute(create_string)
-    # d1
-    # create_string = "create view 1and2 as select d1.user_id,d1.day from (select * from event_init )d0 left join" + \
-    #                 "(select * from event_remain ) d1" + \
-    #                 " on  d0.user_id=d1.user_id and d0.day=d1.day"
-    # cur.execute(create_string)
-    # counts[0] = cur.fetchall()
-    # print(counts[0])
-
-    create_string = "create view 2and3 as (select user_id,day from 1and2)d0 left join (select * from event_remain ) d1" + \
-                    " on d0.day+1=d1.day and d0.user_id=d1.user_id"
-
-    # d2
-    # d0.day+1=d1.day
-
-    create_string = " with user_init_event" + \
-                    " as ( select user_id, day as init_day from event_export_g7 where event_id =" + event_init+\
-                    " and day > "+ from_day+" and day < "+to_day+" ),user_cohort as( " + \
-                    " select e.user_id,i.init_day,(e.day-i.day) as cohort_day " +\
-                    " from sample_remain e LEFT JOIN user_init_event i on e.user_id = i.user_id " + \
-                    " where e.event_id = 'remain_event' and (e.day-i.day)<=7 and (e.day-i.day)>0 " + \
-                    " group by user_id,cohort_day ) select init_day,cohort_day,count(distinct user_id)" + \
-                    " from user_cohort group by init_day,cohort_day order by cohort_day"
-
-
+    create_string=" with a as (select b.user_id,b.day day_remain,c.day day_init, (b.day-c.day) by_day " \
+                  "from event_remain as b left join event_init as c " \
+                  "on b.user_id=c.user_id where 0<= b.day-c.day and b.day-c.day<7 ) select count(distinct a.user_id),a.day_init,a.by_day from  " \
+                  "a group by a.by_day,a.day_init order by a.day_init,a.by_day;"
     cur.execute(create_string)
-    print(cur.fetchall())
+    result=cur.fetchall()
+    result=[list(x) for x in result]
+    # for x in result:
+    #     x[1]=str(datetime.datetime.fromtimestamp(x[1]*86400))[:10]
+    print(result)
+    # result: 人数，日期，第N日留存
+    return total,result # total这天注册的总人数，result留存结果
+
+
+
+
+
 
 
 def event(from_time, to_time, event_id, feature,
@@ -225,7 +216,6 @@ if __name__ == '__main__':
     # print(groups)
     event_init = "26"  # 注册
     event_remain = "27"  # 完成项目创建
-    remain(from_time, to_time, event_init, event_remain)
-
+    total,result=remain(from_time, to_time, event_init, event_remain)
 # select * from(select count(time), day from event_export group by day) f left join (select count(time),p_is_first_time,day from event_export group by day,p_is_first_time) g on f.day=g.day;
 # feature0,group0
