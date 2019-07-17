@@ -13,7 +13,7 @@ def random_sample(percent):  # 抽样总表
 
 def funnel(event_ids, quary):  # event_ids->tuple; quary->[year,month] # 按月份进行漏斗查询
     # quary处理
-    from_month = "'" + quary[0] + "-" + quary[1] + "-01 00:00:0.000000000'"
+    from_month = "'" + quary[0] + "-" + quary[1] + "-01 00:00:00.000000000'"
     if int(quary[1]) < 12:
         to_month = "'" + quary[0] + "-" + "{:0>2d}".format(int(quary[1]) + 1) + "-01 00:00:00.000000000'"
     else:
@@ -29,7 +29,7 @@ def funnel(event_ids, quary):  # event_ids->tuple; quary->[year,month] # 按月�
     #                 str(event_ids) + " and " + from_month + " <time and time< " + to_month
 
     # 总表测试
-    create_string = "create view sample_funnel as select user_id, event_id, time from event_export where event_id in" + \
+    create_string = "create view sample_funnel as select user_id, event_id, time from event_export_partition where event_id in" + \
                     str(event_ids) + " and " + from_month + " <time and time< " + to_month
     cur.execute('use rawdata')
     cur.execute('drop view if exists rawdata.sample_funnel')
@@ -51,27 +51,61 @@ def funnel(event_ids, quary):  # event_ids->tuple; quary->[year,month] # 按月�
 
 
 def remain(from_time, to_time, event_init, event_remain):  # from_time: "2019-01-01", event_init: str event_id
-    from_time = "'" + from_time + " 00:00:00.000000000'"
-    to_time = "'" + to_time + " 00:00:00.000000000'"
+    from_time += " 00:00:00"
+    to_time += " 00:00:00"
+    from_time = time.strptime(from_time, "%Y-%m-%d %H:%M:%S")
+    from_day = str(int(time.mktime(from_time) // 86400))
+    to_time = time.strptime(to_time, "%Y-%m-%d %H:%M:%S")
+    to_day = str(int(time.mktime(to_time) // 86400))
 
-    create_string = "create view sample_remain as select event_id,user_id,day,time  from  event_export where event_id in " + \
-                   "(" + event_init + "," + event_remain + ")" + " and " + from_time + " <time and time< " + to_time
+    create_string = "create view sample_remain as select event_id,user_id,day,time  from  event_export_partition_parquet_g7"+\
+                    " where event_id in " + \
+                    "(" + event_init + "," + event_remain + ")" + " and " + from_day + " <day and day< " + to_day
     cur.execute("use rawdata")
     cur.execute("drop view if exists rawdata.sample_remain")
     cur.execute(create_string)
 
-    counts=[0 for _ in range(7)]
-    create_string="select count(distinct user_id),day from sample_remain group by day where event_id="+event_init
+    counts = [(0, 0) for _ in range(7)]
+    create_string = "select count(distinct user_id),day from sample_remain where event_id=" + event_init + " group by day order by day"
     cur.execute(create_string)
-    total=cur.fetchall()
-    total=[list(x) for x in total]
+    total = cur.fetchall()
+    total = [list(x) for x in total]
     for x in total:
         x[1] = str(datetime.datetime.fromtimestamp(x[1] * 86400))[:10]
+    # print(total)
 
-    create_string="select count(distinct t1.user_id) from sample_remain group by day where event_id="+event_init+" and "+\
-        from_time+" < time"
+    create_string = "create view event_init as select user_id,day from sample_remain where event_id=" + event_init
+    cur.execute("drop view if exists rawdata.event_init")
+    cur.execute(create_string)
+    create_string = "create view event_remain as select user_id,day from sample_remain where event_id=" + event_remain
+    cur.execute("drop view if exists rawdata.event_remain")
+    cur.execute(create_string)
+    # d1
+    # create_string = "create view 1and2 as select d1.user_id,d1.day from (select * from event_init )d0 left join" + \
+    #                 "(select * from event_remain ) d1" + \
+    #                 " on  d0.user_id=d1.user_id and d0.day=d1.day"
+    # cur.execute(create_string)
+    # counts[0] = cur.fetchall()
+    # print(counts[0])
+
+    create_string = "create view 2and3 as (select user_id,day from 1and2)d0 left join (select * from event_remain ) d1" + \
+                    " on d0.day+1=d1.day and d0.user_id=d1.user_id"
+
+    # d2
+    # d0.day+1=d1.day
+
+    create_string = " with user_init_event" + \
+                    " as ( select user_id, day as init_day from event_export_g7 where event_id =" + event_init+\
+                    " and day > "+ from_day+" and day < "+to_day+" ),user_cohort as( " + \
+                    " select e.user_id,i.init_day,(e.day-i.day) as cohort_day " +\
+                    " from sample_remain e LEFT JOIN user_init_event i on e.user_id = i.user_id " + \
+                    " where e.event_id = 'remain_event' and (e.day-i.day)<=7 and (e.day-i.day)>0 " + \
+                    " group by user_id,cohort_day ) select init_day,cohort_day,count(distinct user_id)" + \
+                    " from user_cohort group by init_day,cohort_day order by cohort_day"
 
 
+    cur.execute(create_string)
+    print(cur.fetchall())
 
 
 def event(from_time, to_time, event_id, feature,
@@ -84,14 +118,18 @@ def event(from_time, to_time, event_id, feature,
         # "4":"", # 平均事件时长
     }
     groups = {
-        "0": "",  # 广告系列来源分组
-        "1": "",  # 是否首次访问分组
+        "0": "",  # 广告系列来源分组->运营商
+        "1": "",  # 是否首次访问分组->设备制造商
     }
-    from_time = "'" + from_time + " 00:00:00.000000000'"
-    to_time = "'" + to_time + " 00:00:00.000000000'"
+    from_time += " 00:00:00"
+    to_time += " 00:00:00"
+    from_time = time.strptime(from_time, "%Y-%m-%d %H:%M:%S")
+    from_day = str(int(time.mktime(from_time) // 86400))
+    to_time = time.strptime(to_time, "%Y-%m-%d %H:%M:%S")
+    to_day = str(int(time.mktime(to_time) // 86400))
 
-    create_string = "create view sample_event as select * from event_export where event_id=" + event_id + " and " + \
-                    from_time + " <time and time< " + to_time
+    create_string = "create view sample_event as select * from event_export_partition where event_id=" + event_id + " and " + \
+                    from_day + " <day and day< " + to_day
 
     cur.execute('use rawdata')
     cur.execute('drop view if exists rawdata.sample_event')
@@ -103,17 +141,18 @@ def event(from_time, to_time, event_id, feature,
     features["3"] = "select count(time)/count(distinct user_id),day from sample_event group by day order by day"
     # features["4"]="select sum(p__event_duration)/count(p__event_duration),day from sample_event group by day"
 
-    f={
-        "0":"count(time)",
-        "1":"count(user_id)",
-        "2":"count(distinct user_id)",
-        "3":"count(time)/count(distinct user_id)"
+    f = {
+        "0": "count(time)",
+        "1": "count(user_id)",
+        "2": "count(distinct user_id)",
+        "3": "count(time)/count(distinct user_id)"
     }
 
     # groups["0"] = "select "+f[feature]+",p_utm_source,day from sample_event group by day,p_utm_source order by day"
     # groups["1"] = "select "+f[feature]+",p_is_first_time,day from sample_event group by day,p_is_first_time order by day"
-    groups["0"] = "select "+f[feature]+",p__carrier,day from sample_event group by day,p__carrier order by day"
-    groups["1"] = "select "+f[feature]+",p__manufacturer,day from sample_event group by day,p__manufacturer order by day"
+    groups["0"] = "select " + f[feature] + ",p__carrier,day from sample_event group by day,p__carrier order by day"
+    groups["1"] = "select " + f[
+        feature] + ",p__manufacturer,day from sample_event group by day,p__manufacturer order by day"
 
     cur.execute(features[feature])
     feature_result = cur.fetchall()
@@ -127,13 +166,7 @@ def event(from_time, to_time, event_id, feature,
     for x in group_result:
         x[2] = str(datetime.datetime.fromtimestamp(x[2] * 86400))[:10]
 
-    # 用户选择的event_id可能在限制时间内为None，在演示时为了避免老师认为我们的功能写的是错的，可以在impala中执行这句话
-    # select count(p_is_first_time),p_is_first_time,day from event_export where '2019-02-01 00:00:00.000000000'<time
-    # and time<'2019-02-07 00:00:00.000000000' group by day,p_is_first_time;
-
     return feature_result, group_result
-
-
 
 
 # 这里想要处理那些feature_result中没有出现的日期，用0补上
@@ -174,30 +207,25 @@ def group_standard(from_time, to_time, group_result):  # from_time: unixtime
     return dic
 
 
-
 if __name__ == '__main__':
-    conn = connect(host='139.217.87.136', port=21050)
+    conn = connect(host='106.75.95.67', port=21050)
     cur = conn.cursor()
-    cur.execute('use rawdata')
-    cur.execute('select count(*) from event_export_partition')
-    print(cur.fetchall())
-    # event_ids = (5, 19, 28, 1)
-    # quary = ["2019", "02"]
+    print("Connect success!")
+    event_ids = (5, 19, 28, 1)
+    quary = ["2019", "02"]
     # count=funnel(event_ids, quary)
     # print(count)
-    # from_time = "2019-01-01"
-    # to_time = "2019-03-01"
-    # event_id = "28"
-    # feature = "0"
-    # group = "1"
+    from_time = "2019-01-01"
+    to_time = "2019-02-01"
+    event_id = "28"
+    feature = "0"
+    group = "1"
     # features,groups=event(from_time,to_time,event_id,feature,group)
     # print(features)
     # print(groups)
-    # event_init="26" # 注册
-    # event_remain="27" # 完成项目创建
-    # remain(from_time,to_time,event_init,event_remain)
-
+    event_init = "26"  # 注册
+    event_remain = "27"  # 完成项目创建
+    remain(from_time, to_time, event_init, event_remain)
 
 # select * from(select count(time), day from event_export group by day) f left join (select count(time),p_is_first_time,day from event_export group by day,p_is_first_time) g on f.day=g.day;
 # feature0,group0
-
