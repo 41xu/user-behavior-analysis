@@ -15,7 +15,7 @@
     <title>事件分析</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css" media="screen" type="text/css"/>
-    {% for jsfile_name in script_list_funnel %}
+    {% for jsfile_name in script_list_event %}
         <script src="{{ host }}/{{ jsfile_name }}.js"></script>
     {% endfor %}
 </head>
@@ -96,7 +96,7 @@
 
     <div style="display:flex;justify-content:center">
         <div>
-            {{ funnel|safe }}
+            {{ event|safe }}
         </div>
     </div>
 </div><!-- container -->
