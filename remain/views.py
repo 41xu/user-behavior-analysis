@@ -5,15 +5,17 @@ from django.template import loader
 from django.views.decorators.csrf import csrf_exempt
 import pandas as pd
 import os
+import datetime
+from function import xusy
 
 REMOTE_HOST = 'http://chfw.github.io/jupyter-echarts/echarts'
-# 过程id 和 过程名的对应关系
-event_data = pd.read_csv('./sample_data/event_define.csv')
-event_map = {}
-for i in range(len(event_data)):
-    event_map[event_data.iloc[i,0]] = event_data.iloc[i,2]
+# # 过程id 和 过程名的对应关系
+# event_data = pd.read_csv('./sample_data/event_define.csv')
+# event_map = {}
+# for i in range(len(event_data)):
+#     event_map[event_data.iloc[i,0]] = event_data.iloc[i,2]
 
-
+host='106.75.95.67'
 @csrf_exempt
 def remain(request):
     if request.method == "POST":
@@ -21,14 +23,53 @@ def remain(request):
         # 获取表单数据
         from_date = request.POST.get('from-date')
         to_date = request.POST.get('to-date')
-        init_event_id = int(request.POST.get('init-event-id'))
-        remain_event_id = int(request.POST.get('remain-event-id'))
+        init_event_id = request.POST.get('init-event-id')
+        remain_event_id = request.POST.get('remain-event-id')
 
+        total , res = xusy.remain(host,from_date,to_date,init_event_id,remain_event_id)
+        # total,res = function2()
 
-        return HttpResponse((from_date,to_date,init_event_id,remain_event_id))
+        remain_dic = {}
+        for item in total:# day 为key
+            remain_dic[item[1]] = {
+                                   'date':str(datetime.datetime.fromtimestamp(item[1]*86400))[:10],
+                                   'total':item[0],
+                                   'day_1':0,
+                                   'day_2':0,
+                                   'day_3':0,
+                                   'day_4':0,
+                                   'day_5':0,
+                                   'day_6':0,
+                                   'day_7':0}
+        for item in res:
+            remain_dic[item[1]]['day_'+str(int(item[2]+1))] = item[0]
+        return render_to_response('remain.html',{
+            'flag':True,
+            'remain_dic':remain_dic
+        })
 
     return render_to_response('remain.html')
 
+def function2():
+    total = [[182, 17897], [227, 17898], [180, 17899], [190, 17900], [205, 17901], [238, 17902], [206, 17903], [236, 17904], [234, 17905], [228, 17906], [240, 17907], [230, 17908], [216, 17909], [262, 17910], [277, 17911], [250, 17912], [223, 17913], [254, 17914], [261, 17915], [260, 17916], [259, 17917], [238, 17918], [272, 17919], [272, 17920], [253, 17921], [258, 17922], [276, 17923], [256, 17924], [255, 17925], [270, 17926]]
+    res = [[123, 17897, 0], [2, 17897, 1], [4, 17897, 5], [2, 17897, 6], [153, 17898, 0], [1, 17898, 1], [1, 17898, 2], [3, 17898, 3], [3, 17898, 5], [119, 17899, 0], [1, 17899, 1], [4, 17899, 3], [2, 17899, 4], [2, 17899, 5], [2, 17899, 6], [130, 17900, 0], [1, 17900, 1], [3, 17900, 2], [2, 17900, 3], [2, 17900, 4], [133, 17901, 0], [1, 17901, 1], [1, 17901, 2], [2, 17901, 3], [5, 17901, 4], [3, 17901, 5], [4, 17901, 6], [168, 17902, 0], [3, 17902, 1], [1, 17902, 2], [4, 17902, 3], [1, 17902, 4], [4, 17902, 5], [2, 17902, 6], [140, 17903, 0], [2, 17903, 1], [1, 17903, 2], [2, 17903, 5], [158, 17904, 0], [4, 17904, 1], [3, 17904, 2], [1, 17904, 3], [1, 17904, 4], [1, 17904, 5], [4, 17904, 6], [154, 17905, 0], [3, 17905, 1], [2, 17905, 2], [1, 17905, 3], [4, 17905, 4], [2, 17905, 5], [2, 17905, 6], [153, 17906, 0], [1, 17906, 1], [4, 17906, 3], [2, 17906, 4], [3, 17906, 5], [3, 17906, 6], [170, 17907, 0], [3, 17907, 2], [2, 17907, 4], [3, 17907, 5], [156, 17908, 0], [2, 17908, 1], [1, 17908, 3], [1, 17908, 5], [2, 17908, 6], [145, 17909, 0], [3, 17909, 2], [1, 17909, 3], [2, 17909, 4], [3, 17909, 5], [2, 17909, 6], [165, 17910, 0], [1, 17910, 1], [2, 17910, 2], [1, 17910, 3], [2, 17910, 4], [1, 17910, 5], [4, 17910, 6], [187, 17911, 0], [1, 17911, 1], [1, 17911, 2], [4, 17911, 3], [2, 17911, 4], [4, 17911, 5], [2, 17911, 6], [170, 17912, 0], [2, 17912, 1], [1, 17912, 2], [1, 17912, 3], [4, 17912, 5], [149, 17913, 0], [5, 17913, 1], [2, 17913, 2], [2, 17913, 3], [4, 17913, 4], [174, 17914, 0], [2, 17914, 1], [1, 17914, 2], [2, 17914, 3], [2, 17914, 4], [1, 17914, 5], [1, 17914, 6], [186, 17915, 0], [1, 17915, 1], [3, 17915, 2], [1, 17915, 3], [4, 17915, 4], [2, 17915, 6], [169, 17916, 0], [2, 17916, 1], [1, 17916, 2], [5, 17916, 3], [2, 17916, 4], [2, 17916, 5], [187, 17917, 0], [1, 17917, 1], [1, 17917, 2], [4, 17917, 4], [2, 17917, 5], [2, 17917, 6], [157, 17918, 0], [3, 17918, 1], [1, 17918, 2], [2, 17918, 3], [1, 17918, 4], [1, 17918, 5], [2, 17918, 6], [190, 17919, 0], [2, 17919, 1], [1, 17919, 2], [4, 17919, 3], [1, 17919, 4], [2, 17919, 5], [1, 17919, 6], [183, 17920, 0], [1, 17920, 1], [4, 17920, 2], [2, 17920, 3], [1, 17920, 4], [3, 17920, 5], [4, 17920, 6], [175, 17921, 0], [4, 17921, 1], [2, 17921, 2], [4, 17921, 3], [1, 17921, 4], [1, 17921, 5], [187, 17922, 0], [3, 17922, 1], [2, 17922, 2], [2, 17922, 3], [3, 17922, 4], [185, 17923, 0], [2, 17923, 2], [172, 17924, 0], [2, 17924, 2], [182, 17925, 0], [3, 17925, 1], [181, 17926, 0]]
+    return total,res
 
 if __name__=="__main__":
-    pass
+    total, res = function2()
+
+    remain_dic = {}
+    for item in total:  # day 为key
+        remain_dic[item[1]] = {
+            'date': str(datetime.datetime.fromtimestamp(item[1]*86400))[:10],
+            'total': item[0],
+            'day_1': 0,
+            'day_2': 0,
+            'day_3': 0,
+            'day_4': 0,
+            'day_5': 0,
+            'day_6': 0,
+            'day_7': 0}
+    for item in res:
+        remain_dic[item[1]]['day_' + str(int(item[2] + 1))] = item[0]
+    print(remain_dic)
