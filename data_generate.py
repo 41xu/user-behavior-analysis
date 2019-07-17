@@ -2,16 +2,16 @@ import pandas as pd
 import time
 import datetime
 
-data = pd.DataFrame(columns=['user_id', 'event_id', 'time', 'day'])
 
 
-def timecal_funnel(t):  # t-> "2019-01-01"
+
+def timecal_funnel(t,num):  # t-> "2008-01-01"
     t += " 00:00:00"
     # 20分钟生成一个时间戳
     from_time = int(time.mktime(time.strptime(t, "%Y-%m-%d %H:%M:%S")))
     times = []
     days = []
-    for i in range(1000):
+    for i in range(num):
         times.append(from_time + i * 20 * 60)
     for x in times:
         days.append(x // 86400)
@@ -64,13 +64,6 @@ def login_funnel(nums):
             ids[j + i * 20 + 175] = 8
     return ids
 
-def event_append():
-    data=pd.read_csv('test_data_funnel.csv')
-    print(data)
-    data['p__carrier']=group_event(50)
-    data.to_csv('test_data_event.csv')
-
-
 
 def group_event(nums):
     groups=[]
@@ -78,19 +71,27 @@ def group_event(nums):
         groups.append(0)
         groups.append(1)
     return groups
-
+def event_bucket(nums):
+    res=[]
+    for i in range(nums*4*5//20):
+        for j in range(20):
+            res.append(j)
+    return res
 
 
 if __name__ == '__main__':
-    times, day = timecal_funnel("2019-06-01")
-    data = pd.DataFrame(columns=['user_id', 'event_id', 'time', 'day'])
-    users = user_funnel(50)  # 生成了250名用户
+    times, day = timecal_funnel("2008-01-01",100000000)
+    data = pd.DataFrame(columns=['user_id', 'event_id', 'time', 'day', 'event_bucket', 'p__carrier'])
+    users = user_funnel(5000000)
     data['user_id'] = users
     data['time'] = times
     data['day'] = day
-    ids = login_funnel(50)
+    ids = login_funnel(5000000)
     data['event_id'] = ids
-    data.to_csv("test_data_funnel.csv",index=False)
+    bucket=event_bucket(5000000)
+    data['event_id']=bucket
+    carry=group_event(5000000)
+    data['p__carrier']=carry
+    data.to_csv("data.csv",index=False)
 
-    event_append()
 

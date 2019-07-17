@@ -1,5 +1,9 @@
 生成模拟数据需对项目中三个功能函数进行测试。针对不同的功能需要的数据维度不同，具体如下：
 
+day,time,user_id,event_id, p_utm_source,event_bucket
+
+event_id: 26,8,18,22,27->完成项目创建
+
 ## 漏斗分析
 
 漏斗分析中需要的数据属性包括：time, event_id, day, user_id
