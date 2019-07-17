@@ -5,12 +5,12 @@ import datetime
 
 def timecal_funnel(t, num):  # t-> "2008-01-01"
     t += " 00:00:00"
-    # 20分钟生成一个时间戳
+    # 70s生成一个时间戳
     from_time = int(time.mktime(time.strptime(t, "%Y-%m-%d %H:%M:%S")))
     times = []
     days = []
     for i in range(num):
-        times.append(from_time + i * 20 * 60)
+        times.append(from_time + i * 70)
     for x in times:
         days.append(x // 86400)
     for i in range(len(times)):
