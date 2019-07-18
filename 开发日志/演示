@@ -1,0 +1,41 @@
+
+funnel:
+
+ event_id 26,8,18,22 #注册行为
+
+select count(time) from sample_funnel where event_id=26;
+
+select count(t1.time),count(t2.time), count(t3.time) from (select * from sample_funnel where event_id=26) t0
+left join (select * from sample_funnel where event_id=8) t1 
+on t0.user_id=t1.user_id and t0.time<t1.time and timestamp_cmp(t0.time + interval 120 minutes, t1.time)=1 
+left join (select * from sample_funnel where event_id=18) t2
+on t1.user_id=t2.user_id and t1.time<t2.time and timestamp_cmp(t1.time + interval 120 minutes, t2.time)=1
+left join (select * from sample_funnel where event_id=22) t3
+on t2.user_id=t3.user_id and t2.time<t3.time and timestamp_cmp(t2.time + interval 120 minutes, t3.time)=1
+
+
+remain
+
+with 
+user_init_event as 
+(select user_id, day as init_day 
+    from event_export_partition where event_id = 26    
+            and day >= 17897 and day <= 17926),
+user_cohort as(      
+            select e.user_id,i.init_day,(e.day-i.init_day) as cohort_day      
+            from event_export_partition e LEFT 
+      JOIN user_init_event i on e.user_id = i.user_id 
+            where e.event_id = 27 and (e.day-i.init_day)<7 and (e.day-i.init_day)>=0      
+            group by user_id,cohort_day,i.init_day)
+select count(*),cohort_day,init_day 
+from user_cohort 
+group by init_day,cohort_day 
+order by init_day,cohort_day
+
+
+event 
+
+点击注册 26
+
+select count(time),day from sample_event group by day order by day;
+select count(time),p__carrier,day from sample_event group by day,p__carrier order by day
