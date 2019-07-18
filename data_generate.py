@@ -62,7 +62,7 @@ def login_funnel(nums):
     # index: 50,51,52,53,54, 70,71,...
     for i in range(int(nums*0.125)):
         for j in range(5):
-            ids[j + i * 20 + 50] = 88
+            ids[j + i * 20 + ] = 88
     # index: 20*8+15
     for i in range(int(nums*0.15)):
         for j in range(5):
@@ -99,8 +99,8 @@ def generate(start, batch, last_time):
     data['event_bucket'] = bucket
     carry = group_event(batch // 20)
     data['p__carrier'] = carry
-    data.to_csv("/data/group7/ourdata/data.csv", index=False,mode='a')
-    # data.to_csv("data.csv", index=False, mode='a')
+    data.to_csv("/data/group7/ourdata/data.csv", index=False,mode='a',header=None)
+    # data.to_csv("data.csv", index=False, mode='a',header=None)
     return last_time
 
 
