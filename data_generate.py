@@ -11,8 +11,9 @@ def timecal_funnel(t, num):  # t-> "2008-01-01"
     days = []
     for i in range(num):
         times.append(from_time + i * 70)
-    for x in times:
-        days.append(x // 86400)
+    # for x in times:
+    #     days.append(x // 86400)
+    days = [from_time//86400]*len(times)
     for i in range(len(times)):
         times[i] = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(times[i]))
         times[i] += ".000000000"
@@ -99,7 +100,7 @@ def generate(start, batch, last_time):
     data['event_bucket'] = bucket
     carry = group_event(batch // 20)
     data['p__carrier'] = carry
-    data.to_csv("/data/group7/ourdata/data.csv", index=False,mode='a',header=None)
+    data.to_csv("/data/group7/ourdata/data.csv",header=None index=None,mode='a')
     # data.to_csv("data.csv", index=False, mode='a',header=None)
     return last_time
 
