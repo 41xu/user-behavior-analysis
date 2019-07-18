@@ -152,8 +152,7 @@ def event(host,from_time, to_time, event_id, feature,
     # groups["0"] = "select "+f[feature]+",p_utm_source,day from sample_event group by day,p_utm_source order by day"
     # groups["1"] = "select "+f[feature]+",p_is_first_time,day from sample_event group by day,p_is_first_time order by day"
     groups["0"] = "select " + f[feature] + ",p__carrier,day from sample_event group by day,p__carrier order by day"
-    groups["1"] = "select " + f[
-        feature] + ",p__manufacturer,day from sample_event group by day,p__manufacturer order by day"
+    groups["1"] = "select " + f[feature] + ",p__manufacturer,day from sample_event group by day,p__manufacturer order by day"
 
     cur.execute(features[feature])
     feature_result = cur.fetchall()
