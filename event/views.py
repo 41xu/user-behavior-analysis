@@ -11,7 +11,7 @@ import time
 from function import xusy
 
 REMOTE_HOST = 'http://chfw.github.io/jupyter-echarts/echarts'
-host = '105.75.95.67'
+host = '106.75.95.67'
 
 @csrf_exempt
 def event(request):
@@ -27,7 +27,7 @@ def event(request):
         feature_result,group_result = xusy.event(host,from_date,to_date,event_id,feature_id,group_id)
 
         template = loader.get_template('event.html')
-        event_diagram = generate_chart(from_date,to_date,)
+        event_diagram = generate_chart(from_date,to_date,feature_result,group_result)
         context = dict(
             host=REMOTE_HOST,
             event=event_diagram.render_embed(),

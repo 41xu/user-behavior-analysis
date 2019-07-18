@@ -3,6 +3,7 @@
 day,time,user_id,event_id, p_utm_source,event_bucket
 
 event_id: 26,8,18,22,27->完成项目创建
+event_bucket:0-19
 
 ## 漏斗分析
 

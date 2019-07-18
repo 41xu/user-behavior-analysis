@@ -1,0 +1,8 @@
+create table group7.test_data(
+	user_id BIGINT,
+	event_id INT,
+	time TIMESTAMP,
+	day INT,
+	event_bucket INT,
+	p_utm_source INT,
+);
