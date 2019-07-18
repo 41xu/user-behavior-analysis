@@ -39,9 +39,9 @@ def funnel(host,event_ids, quary):  # event_ids->tuple; quary->[year,month] # æŒ
     cur.execute('use group7')
     cur.execute('drop view if exists group7.sample_funnel')
     cur.execute(create_string)
-    cur.execute('select count(time) from sample_funnel where event_id=' + str(event_ids[0]))
+    cur.execute('select count(distinct user_id) from sample_funnel where event_id=' + str(event_ids[0]))
     count0 = cur.fetchall()[0][0]
-    create_string = "select count(t1.time),count(t2.time), count(t3.time) from (select * from sample_funnel where event_id=" \
+    create_string = "select count(dinstinct t1.user_id),count(t2.time), count(t3.time) from (select * from sample_funnel where event_id=" \
                     + str(event_ids[0]) + ") t0" + \
                     " left join (select * from sample_funnel where event_id=" + str(event_ids[1]) + ") t1" + \
                     " on t0.user_id=t1.user_id and t0.time<t1.time and timestamp_cmp(t0.time + interval 120 minutes, t1.time)=1" + \
