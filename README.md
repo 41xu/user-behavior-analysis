@@ -1,7 +1,7 @@
 # user-behavior-analysis
 Task of DLUT Big Data Department &amp; SensorsData, third semester.
 
-cooperate with [@bellick](https://github.com/bellick)
+cooperate with [@bellick](https://github.com/bellick) [@rengaowu](https://github.com/RengaoWu)
 
 sample_data: data, data_create_sql, data_property
 
