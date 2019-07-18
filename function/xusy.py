@@ -165,7 +165,6 @@ def event(host,from_time, to_time, event_id, feature,
     group_result = [list(x) for x in group_result]
     # for x in group_result:
     #     x[2] = str(datetime.datetime.fromtimestamp(x[2] * 86400))[:10]
-    print(feature_result,group_result)
     return feature_result, group_result
 
 
