@@ -1,5 +1,5 @@
 ```sql
-## 一个菜鸡写的事件函数
+## 一个菜鸡写的留存函数
 def remain2(from_time,to_time,event_init,event_remain):
     from_time += " 00:00:00"
     to_time += " 00:00:00"
@@ -27,5 +27,23 @@ def remain2(from_time,to_time,event_init,event_remain):
 
     print(res)
     print(end - start)
+```
+
+```sql
+with 
+user_init_event as 
+(select user_id, day as init_day 
+    from event_export_partition where event_id = 26    
+		and day >= 17897 and day <= 17926),
+user_cohort as(      
+		select e.user_id,i.init_day,(e.day-i.init_day) as cohort_day      
+		from event_export_partition e LEFT 
+  	JOIN user_init_event i on e.user_id = i.user_id 
+		where e.event_id = 27 and (e.day-i.init_day)<7 and (e.day-i.init_day)>=0      
+		group by user_id,cohort_day,i.init_day)
+select count(*),cohort_day,init_day 
+from user_cohort 
+group by init_day,cohort_day 
+order by init_day,cohort_day
 ```
 
